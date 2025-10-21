@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS bronze_all_activity (
     "name" TEXT, 
     photo_count INTEGER, 
     "private" BOOLEAN, 
-    sport_type TEXT, -- define enum
+    sport_type TEXT, -- define enum?
     "start_date" TIMESTAMPTZ, 
     start_date_local TIMESTAMPTZ, 
     start_latlng NUMERIC[2], 
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS bronze_all_activity (
     total_photo_count INTEGER, 
     trainer BOOLEAN, 
     "type" TEXT, 
-    upload_id BIGINT, 
+    upload_id BIGINT,
     upload_id_str TEXT, 
     weighted_average_watts INTEGER, 
     workout_type INTEGER, 

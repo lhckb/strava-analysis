@@ -59,3 +59,15 @@ class StravaWrapper:
 
         logger.info("Getting activities")
         return client.get_activities(before, after, limit)
+    
+    def get_athlete_personal_info(self):
+        self._pre_request_check()
+        client = self._get_new_client()
+
+        return client.get_athlete()
+    
+    def get_athlete_personal_stats(self):
+        self._pre_request_check()
+        client = self._get_new_client()
+
+        return client.get_athlete_stats()

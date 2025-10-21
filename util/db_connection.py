@@ -4,6 +4,8 @@ from stravalib.model import SummaryActivity
 from stravalib.client import BatchedResultsIterator
 import json
 from util.logger_setup import get_logger
+import pandas as pd
+import numpy as np
 
 logger = get_logger()
 
@@ -25,7 +27,7 @@ class PsycopgConnection:
         cursor.close()
         self.conn.commit()
 
-    def insert_activities(self, activities: BatchedResultsIterator[SummaryActivity]):
+    def insert_activities_bronze(self, activities: BatchedResultsIterator[SummaryActivity]):
         """
         Insert activities from a BatchedResultsIterator[SummaryActivity]
         into the bronze_all_activity table.
@@ -118,4 +120,23 @@ class PsycopgConnection:
         with self.conn.cursor() as cur:
             logger.info("Inserting activities from iterator")
             execute_values(cur, insert_query, rows, page_size=1000)
+        self.conn.commit()
+
+    def insert_activities_silver(self, df: pd.DataFrame):
+        columns = list(df.columns)
+        col_str = ', '.join(columns)
+
+        sql = f"""
+        INSERT INTO activities_silver ({col_str})
+        VALUES %s
+        ON CONFLICT (id) DO UPDATE
+        SET {', '.join([f"{col} = EXCLUDED.{col}" for col in columns if col != 'id'])};
+        """
+
+        # Convert DataFrame to list of tuples
+        records = [tuple(x) for x in df.where(pd.notna(df), None).to_numpy()]
+
+        logger.info(f"Executing SQL statement: {sql}")
+        with self.conn.cursor() as cur:
+            execute_values(cur, sql, records)
         self.conn.commit()
